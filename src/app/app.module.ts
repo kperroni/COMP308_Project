@@ -3,8 +3,11 @@ import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
 import { MDBBootstrapModule } from 'angular-bootstrap-md';
 import { FormsModule } from '@angular/forms';
 
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {ToasterModule, ToasterService} from 'angular5-toaster';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToasterModule, ToasterService } from 'angular5-toaster';
+
+import { SocketIoModule, SocketIoConfig } from 'ng-socket-io';
+const config: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
 
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
@@ -33,7 +36,7 @@ const appRoutes: Routes = [
   { path: 'viewActiveTickets', component: ViewActiveTicketsComponent },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', redirectTo: '/home', pathMatch: 'full' }
-]
+];
 
 @NgModule({
   declarations: [
@@ -54,13 +57,14 @@ const appRoutes: Routes = [
     HttpClientModule,
     RouterModule.forRoot(appRoutes),
     BrowserAnimationsModule,
-    ToasterModule
+    ToasterModule,
+    SocketIoModule.forRoot(config)
   ],
   schemas: [NO_ERRORS_SCHEMA],
   providers: [
-    UserService, 
-    TicketService, 
-    ServiceService, 
+    UserService,
+    TicketService,
+    ServiceService,
     StudentService,
     MessageService
   ],

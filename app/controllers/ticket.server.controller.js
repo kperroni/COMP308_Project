@@ -5,18 +5,18 @@ var Guest = require('mongoose').model('Guest');
 
 exports.createTicket = function (req, res, next) {
     console.log("Ticket Controller");
-    
+
     // verify it the user is logged in
-    if(req.user.id == null) {
-        return res.json({message:"0", err:"you must login first"});
+    if (req.user.id == null) {
+        return res.json({ message: "0", err: "you must login first" });
         console.log("req.user.id", req.user.id);
     }
 
-    Ticket.findMax(function(err, ret) {     // get the maximum number of ticket
+    Ticket.findMax(function (err, ret) {     // get the maximum number of ticket
         if (err) {
             return res.json({ message: "0", err: err });
         } else {
-            if(ret) {
+            if (ret) {
                 req.body.ticket.ticketNumber = ret.ticketNumber + 1; // next ticket
             } else {
                 req.body.ticket.ticketNumber = 1;   // first ticket
@@ -24,32 +24,36 @@ exports.createTicket = function (req, res, next) {
 
             req.body.ticket.userId = req.user.id;   // set the loged user id
             req.body.ticket.weight = 1;             // temporarily a fix value
-            
-            if(req.body.guest != null) { // if we need to inser fisrt the guest
+
+            if (req.body.guest != null) { // if we need to inser fisrt the guest
                 var guest = new Guest(req.body.guest);
-                guest.save(function(err, ret) { // save the new guest
+                guest.save(function (err, ret) { // save the new guest
                     if (err) {
-                        return res.json({message:"0", err:err});
+                        return res.json({ message: "0", err: err });
                     } else {
                         console.log("guest", ret);
                         req.body.ticket.guestId = ret._id;      // set the guest id in the ticket
                         var ticket = new Ticket(req.body.ticket);
                         ticket.save(function (err) {                        // save the ticket after the guest
                             if (err) {
-                                return res.json({message:"0", err:err});
+                                return res.json({ message: "0", err: err });
                             } else {
-                                res.json({message:"1", ticketNumber:req.body.ticket.ticketNumber});
+                                var socketIo = req.app.get('socketIo');
+                                socketIo.sockets.emit('ticket.created', ticket);
+                                res.json({ message: "1", ticketNumber: req.body.ticket.ticketNumber });
                             }
-                        });        
+                        });
                     }
                 });
             } else {
                 var ticket = new Ticket(req.body.ticket);
                 ticket.save(function (err) {                        // save the ticket without any guest
                     if (err) {
-                        return res.json({message:"0", err:err});
+                        return res.json({ message: "0", err: err });
                     } else {
-                        res.json({message:"1", ticketNumber:req.body.ticket.ticketNumber});
+                        var socketIo = req.app.get('socketIo');
+                        socketIo.sockets.emit('ticket.created', ticket);
+                        res.json({ message: "1", ticketNumber: req.body.ticket.ticketNumber });
                     }
                 });
             }
@@ -66,11 +70,10 @@ exports.getCurrentTicket = function (req, res, next) {
         if (err) {
             return res.json({ message: "0", err: err });
         } else {
-            if(req.user.type == 'E')
-            {
-            res.json({ message: "1", ticket: retobj, userType: req.user.type });
+            if (req.user.type == 'E') {
+                res.json({ message: "1", ticket: retobj, userType: req.user.type });
             }
-            else{
+            else {
                 res.json({ message: "1", ticket: ret, userType: req.user.type });
             }
         }

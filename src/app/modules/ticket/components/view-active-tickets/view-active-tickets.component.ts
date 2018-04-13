@@ -8,7 +8,7 @@ import { TicketService } from '../../ticket.service';
 })
 export class ViewActiveTicketsComponent implements OnInit {
 
-  private activeTickets : any;
+  private activeTickets: any;
 
   constructor(private ticketService: TicketService) { }
 
@@ -19,5 +19,9 @@ export class ViewActiveTicketsComponent implements OnInit {
       },
       err => { console.error(err); }
     );
+
+    this.ticketService.getActiveTicketsSocket().subscribe(data => {
+      this.ngOnInit();
+    });
   }
 }

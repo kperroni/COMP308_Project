@@ -10,11 +10,18 @@ const passport = require('passport');
 const flash = require('connect-flash');
 const path = require('path');
 const http = require('http');
+const socketIo = require('socket.io');
+
 
 // Define the Express configuration method
 module.exports = function () {
     // Create a new Express application instance
     const app = express();
+
+    const server = http.createServer(app);
+    var io = socketIo.listen(server);
+    app.set('socketIo', io);
+    app.set('server', server);
 
     // Use the 'NDOE_ENV' variable to activate the 'morgan' logger or 'compress' middleware
     if (process.env.NODE_ENV === 'development') {

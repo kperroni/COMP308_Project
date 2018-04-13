@@ -22,7 +22,7 @@ const app = configureExpress();
 const passport = configurePassport();
 
 // Use the Express application instance to listen to the '3001' port
-app.listen(app.get('port'));
+app.get('server').listen(app.get('port'));
 
 // Log the server status to the console
 console.log('Server running at http://localhost:'+app.get('port')+'/');
